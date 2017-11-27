@@ -64,9 +64,9 @@ def verbose(verbose=True):
 # Thus, the use of the global use of the timeout wrapper is disabled here and enabled selectively below.
 
 ### @timeout()
-def run(input_mol, output_rules_applied=None, verbose=False): 
+def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_salts=True, verbose=False): 
 
-    # Get input molecule...
+    # Get input molecule... 
 
     if type(input_mol) == Chem.rdchem.Mol:
 
@@ -99,9 +99,7 @@ def run(input_mol, output_rules_applied=None, verbose=False):
 
     except StandardiseException as err:
 
-        logger.debug("Molecule failed sanity check")
-
-        raise
+        return (True, None, 'Molecule failed sanity check')
 
     ######
 
@@ -117,7 +115,7 @@ def run(input_mol, output_rules_applied=None, verbose=False):
 
         logger.debug("1) Check for non-organic elements...")
 
-        if unsalt.is_nonorganic(frag): continue
+        if not keep_non_organic and unsalt.is_nonorganic(frag): continue
 
         logger.debug("2) Attempting to neutralise (first pass)...")
 
@@ -133,7 +131,7 @@ def run(input_mol, output_rules_applied=None, verbose=False):
 
         logger.debug("5) Checking if frag is a salt/solvate...")
 
-        if unsalt.is_salt(frag): continue
+        if remove_salts and unsalt.is_salt(frag): continue
 
         logger.debug("...fragment kept.")
 
@@ -141,11 +139,14 @@ def run(input_mol, output_rules_applied=None, verbose=False):
 
     if len(non_salt_frags) == 0:
 
-        raise StandardiseException("no_non_salt")
-
+        #raise StandardiseException("no_non_salt")
+        return (False, non_salt_frags, 'No non-salt/solvate components')
+        
+        
     if len(non_salt_frags) > 1:
-
-        raise StandardiseException("multi_component")
+        
+        #raise StandardiseException("multi_component")
+        return (False, non_salt_frags, 'Multiple non-salt/solvate components')
 
     parent = non_salt_frags[0]
 
@@ -155,15 +156,15 @@ def run(input_mol, output_rules_applied=None, verbose=False):
 
     if input_type == 'mol':
 
-        return parent
+        return (True, parent, '')
 
     elif input_type == 'sdf':
 
-        return Chem.MolToMolBlock(parent)
+        return (True, Chem.MolToMolBlock(parent), '')
 
     else:  # input_type == 'smi'
 
-        return Chem.MolToSmiles(parent, isomericSmiles=True)
+        return (True, Chem.MolToSmiles(parent, isomericSmiles=True), '')
 
 # run
 
