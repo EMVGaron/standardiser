@@ -189,7 +189,10 @@ def std(mol):
             stdD[metal] = (None, True)
 
         # For the rest of the molecule, standardize and add
-        (passed, std_cmpds, errmessage) = standardise.run(comp_mol)
+        try:
+            (passed, std_cmpds, errmessage) = standardise.run(comp_mol)
+        except:
+            pass
         if passed:
             stdD[MolToSmiles(std_cmpds)] = (std_cmpds, False)
         elif errmessage == 'Multiple non-salt/solvate components':
