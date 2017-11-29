@@ -1,6 +1,7 @@
 ﻿import sys, os
 
 from rdkit import Chem
+from rdkit.Chem import *
 # Using last version of standardiser : https://github.com/flatkinson/standardiser
 from standardiser import standardise
 timeout = -1
