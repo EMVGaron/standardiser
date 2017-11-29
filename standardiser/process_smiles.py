@@ -192,7 +192,8 @@ def std(mol):
         try:
             (passed, std_cmpds, errmessage) = standardise.run(comp_mol)
         except:
-            pass
+            passed = False
+            errmessage = 'Failed'
         if passed:
             stdD[MolToSmiles(std_cmpds)] = (std_cmpds, False)
         elif errmessage == 'Multiple non-salt/solvate components':
