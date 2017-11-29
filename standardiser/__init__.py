@@ -5,5 +5,6 @@ __all__ = [
     "unsalt",
     "standardise",
     "SDF",
-    "utils"
+    "utils",
+    "process_smiles"
 ]
