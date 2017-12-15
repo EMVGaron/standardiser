@@ -177,16 +177,21 @@ def std(mol):
     # Check single atom compounds, to see if they are metal ions
     if mol.GetNumAtoms() == 1:
         at = mol.GetAtoms()[0].GetSymbol()
+        symbol = '[%s]' %at
         if at in _metals:
-            metal = '[%s]' %at
-            stdD[metal] = (None, True, True, '')
+            cmpd = Chem.MolFromSmiles(symbol)
+            stdD[symbol] = (cmpd, True, True, '')
+        else:
+            (passed, std_cmpds, errmessage) = standardise.run(mol)
+            stdD[symbol] = (mol, False, passed, errmessage)
     else:  
         # Extract metal ions from complex compounds
         comp_mol, metals = disconnect(mol)
         for metal in metals:
             metalmol = MolFromSmiles(metal)
             metal = '[%s]' %metalmol.GetAtoms()[0].GetSymbol()
-            stdD[metal] = (None, True, True, '')
+            cmpd = Chem.MolFromSmiles(metal)
+            stdD[metal] = (cmpd, True, True, '')
 
         # For the rest of the molecule, standardize and add
         try:
@@ -194,6 +199,7 @@ def std(mol):
         except:
             passed = False
             errmessage = 'Failed'
+
         if passed:
             stdD[MolToSmiles(std_cmpds)] = (std_cmpds, False, True, '')
         elif errmessage == 'Multiple non-salt/solvate components':
@@ -201,9 +207,10 @@ def std(mol):
             for cmpd in std_cmpds:
                 inchi = MolToInchi(cmpd)
                 cmpdD[inchi] = cmpd
+
             for inchi in cmpdD:
                 cmpd = cmpdD[inchi]
-                stdD[MolToSmiles(cmpd)] = (cmpd, False, True, '')
+                stdD[MolToSmiles(cmpd)] = (cmpd, False, True, 'Multiple non-salt/solvate components')
         else:
             stdD[MolToSmiles(mol)] = (mol, False, False, errmessage)
                 
