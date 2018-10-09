@@ -69,50 +69,31 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
     # Get input molecule... 
 
     if type(input_mol) == Chem.rdchem.Mol:
-
         mol = input_mol
-
         input_type = 'mol'
-
     else:
-
         mol = Chem.MolFromMolBlock(input_mol)
-
         if not mol:
-
             mol = Chem.MolFromSmiles(input_mol)
-
             if not mol:
-
                 raise StandardiseException("not_built")
-
             else:
-
                 input_type = 'smi'
         else:
-
             input_type = 'sdf'
 
     try:
-
         sanity_check(mol)
-
     except StandardiseException as err:
-
         return (True, None, 'Molecule failed sanity check')
 
     ######
 
     # Get disconnected fragments...
-
     non_salt_frags = []
-
     mol = break_bonds.run(mol)
-
     for n, frag in enumerate(Chem.GetMolFrags(mol, asMols=True), 1):
-
         logger.debug("Starting fragment {n} '{smi}'...".format(n=n, smi=Chem.MolToSmiles(frag)))
-
         logger.debug("1) Check for non-organic elements...")
 
         if not keep_non_organic and unsalt.is_nonorganic(frag): continue
@@ -155,15 +136,12 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
     # Return parent in same format as input...
 
     if input_type == 'mol':
-
         return (True, parent, '')
 
     elif input_type == 'sdf':
-
         return (True, Chem.MolToMolBlock(parent), '')
 
     else:  # input_type == 'smi'
-
         return (True, Chem.MolToSmiles(parent, isomericSmiles=True), '')
 
 # run
@@ -175,21 +153,16 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
 import platform
 
 if platform.system() == 'Windows':
-
     logger.warning("Running under Windows: must disable use of timeout")
 
 else:
-
     try:
-
         from mod_wsgi import version
-
         logger.warning("Running under mod_wsgi: must disable use of timeout")
 
     except:
-
         run = timeout()(run)
 
-####################################################################################################
+###########################################################################################
 # End
-####################################################################################################
+###########################################################################################
