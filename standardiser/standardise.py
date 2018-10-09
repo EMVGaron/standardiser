@@ -111,7 +111,7 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
 
     for n, frag in enumerate(Chem.GetMolFrags(mol, asMols=True), 1):
 
-        logger.debug("Starting fragment {n} '{smi}'...".format(n=n, smi=Chem.MolToSmiles(frag)))
+        logger.debug("Starting fragment {n} '{smi}'...".format(n=n, smi=Chem.MolToSmiles(frag, isomericSmiles=True)))
 
         logger.debug("1) Check for non-organic elements...")
 
@@ -128,7 +128,7 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
         logger.debug("4) Attempting to neutralise (second pass)...")
 
         frag = neutralise.run(frag)
-
+        
         logger.debug("5) Checking if frag is a salt/solvate...")
 
         if remove_salts and unsalt.is_salt(frag): continue
@@ -163,7 +163,7 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
         return (True, Chem.MolToMolBlock(parent), '')
 
     else:  # input_type == 'smi'
-
+    	
         return (True, Chem.MolToSmiles(parent, isomericSmiles=True), '')
 
 # run

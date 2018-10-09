@@ -117,17 +117,17 @@ def normalize(inF, outF, singleF, failedF, remove_salts= True, keep_nonorganic= 
             count_inc += 1
             nHA = mol.GetNumHeavyAtoms()
             if nHA < 2:
-                singleF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(mol)))
+                singleF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(mol, isomericSmiles=True)))
             else:
-                outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(mol)))
+                outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(mol, isomericSmiles=True)))
                 #prot, protMol = protonate(mol, pH)
                 #if prot:
-                #    outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(protMol)))
+                #    outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(protMol, isomericSmiles=True)))
                 #else:
                 #    failedF.write('{}\t{}\t{}\n'.format(cas, smi, protMol))
                 #    fail_prot += 1
         else:
-            smis = set([Chem.MolToSmiles(moli) for moli in mol])
+            smis = set([Chem.MolToSmiles(moli, isomericSmiles=True) for moli in mol])
             if err == 'Multiple non-salt/solvate components':
                 for smii in smis:
                     moli = Chem.MolFromSmiles(smii)
@@ -138,7 +138,7 @@ def normalize(inF, outF, singleF, failedF, remove_salts= True, keep_nonorganic= 
                         outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, smii))
                         #prot, protMol = protonate(Chem.MolFromSmiles(smii), pH)
                         #if prot:
-                        #    outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(protMol)))
+                        #    outF.write('{}\t{}\t{}\t{}\n'.format(cas, i, smi, Chem.MolToSmiles(protMol, isomericSmiles=True)))
                         #else:
                         #    failedF.write('{}\t{}\t{}\n'.format(cas, smi, protMol))
                         #    fail_prot += 1
@@ -201,7 +201,7 @@ def std(mol):
             errmessage = 'Failed'
 
         if passed:
-            stdD[MolToSmiles(std_cmpds)] = (std_cmpds, False, True, '')
+            stdD[MolToSmiles(std_cmpds, isomericSmiles=True)] = (std_cmpds, False, True, '')
         elif errmessage == 'Multiple non-salt/solvate components':
             cmpdD = {}
             for cmpd in std_cmpds:
@@ -210,8 +210,8 @@ def std(mol):
 
             for inchi in cmpdD:
                 cmpd = cmpdD[inchi]
-                stdD[MolToSmiles(cmpd)] = (cmpd, False, True, 'Multiple non-salt/solvate components')
+                stdD[MolToSmiles(cmpd, isomericSmiles=True)] = (cmpd, False, True, 'Multiple non-salt/solvate components')
         else:
-            stdD[MolToSmiles(mol)] = (mol, False, False, errmessage)
+            stdD[MolToSmiles(mol, isomericSmiles=True)] = (mol, False, False, errmessage)
                 
     return stdD

@@ -141,6 +141,7 @@ def apply_rule(mol, rule, verbose=False):
 
                 if smiles in products: continue # Keep only new structures
                 
+                
                 products[smiles] = product
 
         if products:
@@ -171,7 +172,7 @@ def run(mol, first_only=False, verbose=False, output_rules_applied=None):
     Apply all rules to the input molecule.
     """
 
-    logger.debug("mol = '{smi}'".format(smi=Chem.MolToSmiles(mol)))
+    logger.debug("mol = '{smi}'".format(smi=Chem.MolToSmiles(mol, isomericSmiles=True)))
 
     rules_applied = []
 
