@@ -1,4 +1,4 @@
-################################################################################################################################
+##############################################################################################
 # 
 # Copyright [2014] EMBL - European Bioinformatics Institute
 # 
@@ -14,13 +14,13 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 # 
-################################################################################################################################
+##############################################################################################
 
 """
 Apply standardisation procedure
 """
 
-####################################################################################################
+##############################################################################################
 
 from . import make_logger
 logger = make_logger.run(__name__)
@@ -31,17 +31,17 @@ from . import break_bonds, neutralise, rules, unsalt
 
 from .utils import StandardiseException, sanity_check, timeout
 
-####################################################################################################
+##############################################################################################
 #
 # Module configuration...
 #
 
-####################################################################################################
+##############################################################################################
 #
 # Module initialization...
 #
 
-####################################################################################################
+##############################################################################################
 
 def verbose(verbose=True):
 
@@ -55,7 +55,7 @@ def verbose(verbose=True):
 
     for module in break_bonds, unsalt, neutralise, rules: module.logger.setLevel(level)
 
-####################################################################################################
+##############################################################################################
 
 # Unix signals such as SIGALRM are not unavailable on Windows, so the timeout facility cannot be used.
 # Use of signals such as SIGALRM is also impossible whe running under mod_wsgi...
@@ -109,7 +109,7 @@ def run(input_mol, output_rules_applied=None, keep_non_organic=False, remove_sal
         logger.debug("4) Attempting to neutralise (second pass)...")
 
         frag = neutralise.run(frag)
-
+        
         logger.debug("5) Checking if frag is a salt/solvate...")
 
         if remove_salts and unsalt.is_salt(frag): continue
