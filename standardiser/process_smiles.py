@@ -6,8 +6,8 @@ from rdkit.Chem import *
 from standardiser import standardise
 timeout = -1
 
-_metal_nof = Chem.MolFromSmarts('[Li,Na,K,Rb,Cs,F,Be,Mg,Ca,Sr,Ba,Ra,Sc,Ti,V,Cr,Mn,Fe,Co,Ni,Cu,Zn,Al,Ga,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,Ag,Cd,In,Sn,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi]~[N,O,F]')
-_metal_non = Chem.MolFromSmarts('[Al,Sc,Ti,V,Cr,Mn,Fe,Co,Ni,Cu,Zn,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,Ag,Cd,Hf,Ta,W,Re,Os,Ir,Pt,Au]~[B,C,Si,P,As,Sb,S,Se,Te,Cl,Br,I,At]')
+_metal_nof = Chem.MolFromSmarts('[Li,Na,K,Rb,Cs,F,Be,Mg,Ca,Sr,Ba,Ra,Sc,Ti,V,Cr,Mn,Fe,Co,Ni,Cu,Zn,Al,Ga,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,Ag,Cd,In,Sn,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi]~[N,n,O,o,F]')
+_metal_non = Chem.MolFromSmarts('[Al,Sc,Ti,V,Cr,Mn,Fe,Co,Ni,Cu,Zn,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,Ag,Cd,Hf,Ta,W,Re,Os,Ir,Pt,Au]~[B,C,c,Si,P,As,Sb,S,Se,Te,Cl,Br,I,At]')
 _metals = ['Al','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','Hf','Ta','W','Re','Os','Ir','Pt','Au','Sn']
 
 def disconnect(mol):
@@ -169,7 +169,7 @@ def normalize(inF, outF, singleF, failedF, remove_salts= True, keep_nonorganic= 
     print ('   Fail sanity check = {}'.format(fail_sanity))
     print ('   Only salts / solvent = {}'.format(all_salts))
 
-def std(mol):
+def std(mol, returnMetals=False):
     # Standardize and return a dictionary with the smiles as keys
     # and the molecule object and whether it's a metal ion as values
     stdD = {}
@@ -178,22 +178,25 @@ def std(mol):
     if mol.GetNumAtoms() == 1:
         at = mol.GetAtoms()[0].GetSymbol()
         symbol = '[%s]' %at
-        if at in _metals:
+        if at in _metals and returnMetals:
             cmpd = Chem.MolFromSmiles(symbol)
             stdD[symbol] = (cmpd, True, True, '')
         else:
-            (passed, std_cmpds, errmessage) = standardise.run(mol)
-            stdD[symbol] = (mol, False, passed, errmessage)
+            (passed, std_cmpd, errmessage) = standardise.run(mol)
+            if passed:
+                stdD[symbol] = (std_cmpd, False, passed, errmessage)
     else:  
         # Extract metal ions from complex compounds
         comp_mol, metals = disconnect(mol)
-        for metal in metals:
-            metalmol = MolFromSmiles(metal)
-            metal = '[%s]' %metalmol.GetAtoms()[0].GetSymbol()
-            cmpd = Chem.MolFromSmiles(metal)
-            stdD[metal] = (cmpd, True, True, '')
+        if returnMetals:
+            for metal in metals:
+                metalmol = Chem.MolFromSmiles(metal)
+                metal = '[%s]' %metalmol.GetAtoms()[0].GetSymbol()
+                cmpd = Chem.MolFromSmiles(metal)
+                stdD[metal] = (cmpd, True, True, '')
 
         # For the rest of the molecule, standardize and add
+        standardise.run(comp_mol)
         try:
             (passed, std_cmpds, errmessage) = standardise.run(comp_mol)
         except:
@@ -201,17 +204,17 @@ def std(mol):
             errmessage = 'Failed'
 
         if passed:
-            stdD[MolToSmiles(std_cmpds)] = (std_cmpds, False, True, '')
+            stdD[Chem.MolToSmiles(std_cmpds)] = (std_cmpds, False, True, '')
         elif errmessage == 'Multiple non-salt/solvate components':
             cmpdD = {}
             for cmpd in std_cmpds:
-                inchi = MolToInchi(cmpd)
+                inchi = Chem.MolToInchi(cmpd)
                 cmpdD[inchi] = cmpd
 
             for inchi in cmpdD:
                 cmpd = cmpdD[inchi]
-                stdD[MolToSmiles(cmpd)] = (cmpd, False, True, 'Multiple non-salt/solvate components')
+                stdD[Chem.MolToSmiles(cmpd)] = (cmpd, False, True, 'Multiple non-salt/solvate components')
         else:
-            stdD[MolToSmiles(mol)] = (mol, False, False, errmessage)
+            stdD[Chem.MolToSmiles(mol)] = (mol, False, False, errmessage)
                 
     return stdD
