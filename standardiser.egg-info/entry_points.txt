@@ -1,3 +1,0 @@
-[console_scripts]
-standardiser = standardiser.bin.standardiser:main
-
