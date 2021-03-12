@@ -21,12 +21,12 @@ setup(
     license='Apache License, Version 2.0',
     entry_points={
         'console_scripts': [
-            'standardiser2=standardiser.bin.standardiser:main']},
-    packages=['standardiser',
-              'standardiser.bin'],
+            'standardiser2=standardiser2.bin.standardiser:main']},
+    packages=['standardiser2',
+              'standardiser2.bin'],
     long_description=open('ReadMe.txt').read(),
     package_data={
-        'standardiser': ['bin/*', 'data/*', 'docs/*'],
+        'standardiser2': ['bin/*', 'data/*', 'docs/*'],
         },
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Environment :: Console',
