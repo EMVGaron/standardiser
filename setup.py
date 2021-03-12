@@ -12,7 +12,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup
 setup(
-    name='standardiser',
+    name='standardiser_2',
     version='0.1.7',
     author='Francis Atkinson',
     author_email='francis@ebi.ac.uk',
@@ -26,7 +26,7 @@ setup(
               'standardiser.bin'],
     long_description=open('ReadMe.txt').read(),
     package_data={
-        'standardiser': ['bin/*', 'data/*', 'docs/*'],
+        'standardiser_2': ['bin/*', 'data/*', 'docs/*'],
         },
     classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Environment :: Console',
